@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=bunk_logs
+POSTGRES_USER=eoGBYdkVcZvYQBgRYKiiCKpRCPCZdfwV
+POSTGRES_PASSWORD=zPwGwkVKez0sAB6Acq1yQewt79P0F8vwB8nDV7HhEh6mztiYF7HDlzYgl2RLx9Jg
