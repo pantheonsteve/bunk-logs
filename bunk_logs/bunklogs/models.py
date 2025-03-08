@@ -4,15 +4,15 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from bunk_logs.campers.models import Camper
+from bunk_logs.campers.models import CamperBunkAssignment
 
 
 class BunkLog(models.Model):
     """Daily report for each camper."""
 
-    camper = models.ForeignKey(
-        Camper,
-        on_delete=models.CASCADE,
+    bunk_assignment = models.ForeignKey(
+        'campers.CamperBunkAssignment',
+        on_delete=models.PROTECT,  # Don't allow deleting assignment if logs exist
         related_name="bunk_logs",
     )
     date = models.DateField()
@@ -21,6 +21,8 @@ class BunkLog(models.Model):
         on_delete=models.CASCADE,
         related_name="submitted_logs",
     )
+
+    not_on_camp = models.BooleanField(default=False)
 
     # Scores (1-5 scale)
     social_score = models.PositiveSmallIntegerField(
@@ -40,7 +42,6 @@ class BunkLog(models.Model):
     )
 
     # Status flags
-    camper_not_on_camp = models.BooleanField(default=False)
     request_camper_care_help = models.BooleanField(default=False)
     request_unit_head_help = models.BooleanField(default=False)
 
@@ -54,8 +55,13 @@ class BunkLog(models.Model):
     class Meta:
         verbose_name = _("bunk log")
         verbose_name_plural = _("bunk logs")
-        unique_together = ("camper", "date")
+        unique_together = ("bunk_assignment", "date")
         ordering = ["-date"]
 
     def __str__(self):
-        return f"Log for {self.camper} on {self.date}"
+        return f"Log for {self.bunk_assignment.camper} on {self.date}"
+    
+    @property
+    def camper(self):
+        """Property to maintain compatibility with existing code."""
+        return self.bunk_assignment.camper

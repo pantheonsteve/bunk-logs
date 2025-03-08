@@ -61,7 +61,6 @@ class Unit(models.Model):
 class Bunk(models.Model):
     """Group of campers assigned to counselors for a session."""
 
-    name = models.CharField(max_length=100)
     cabin = models.ForeignKey(
         Cabin,
         on_delete=models.SET_NULL,
@@ -80,20 +79,24 @@ class Bunk(models.Model):
         null=True,
         related_name="bunks",
     )
-    unit_head = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        limit_choices_to={"role": "UNIT_HEAD"},
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="managed_bunks",
-    )
+    is_active = models.BooleanField(default=True, verbose_name=_("Active"))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = _("bunk")
         verbose_name_plural = _("bunks")
-        unique_together = ("name", "session")
+        unique_together = ("cabin", "session")
+
+    @property
+    def name(self):
+        if self.cabin and self.session:
+            return f"{self.cabin.name} - {self.session.name}"
+        elif self.cabin:
+            return f"{self.cabin.name} - (No Session)"
+        elif self.session:
+            return f"(No Cabin) - {self.session.name}"
+        return "(Undefined Bunk)"
 
     def __str__(self):
-        return f"{self.name} - {self.session.name}"
+        return self.name
